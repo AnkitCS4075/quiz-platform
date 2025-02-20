@@ -15,7 +15,7 @@ const Quiz: React.FC = () => {
     answers: {},
     timePerQuestion: {},
     isComplete: false,
-    startTime: new Date().toISOString(),
+    startTime: '',
   });
 
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
@@ -23,6 +23,10 @@ const Quiz: React.FC = () => {
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
+    setQuizState(prev => ({
+      ...prev,
+      startTime: new Date().toISOString()
+    }));
     loadAttempts();
   }, []);
 
@@ -110,7 +114,7 @@ const Quiz: React.FC = () => {
       answers: {},
       timePerQuestion: {},
       isComplete: false,
-      startTime: new Date().toISOString(),
+      startTime: '',
     });
     setSelectedAttempt(null);
   };

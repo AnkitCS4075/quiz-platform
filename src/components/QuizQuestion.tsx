@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Question } from '../types/quiz';
 
 interface QuizQuestionProps {
@@ -18,12 +18,20 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
 }) => {
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [answer, setAnswer] = useState<string | number>(userAnswer || '');
+  const [timerActive, setTimerActive] = useState(true);
 
   useEffect(() => {
+    setAnswer(userAnswer || '');
+  }, [userAnswer]);
+
+  useEffect(() => {
+    if (!timerActive) return;
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          setTimerActive(false);
           onTimeUp();
           return 0;
         }
@@ -31,8 +39,15 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
       });
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [onTimeUp]);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [timerActive, onTimeUp]);
+
+  useEffect(() => {
+    setTimeLeft(timeLimit);
+    setTimerActive(true);
+  }, [question.id, timeLimit]);
 
   const handleAnswerChange = (value: string | number) => {
     setAnswer(value);
