@@ -10,12 +10,13 @@ import { saveQuizAttempt, getQuizAttempts } from '../services/db';
 const SECONDS_PER_QUESTION = 30;
 
 const Quiz: React.FC = () => {
+  const [isStarted, setIsStarted] = useState(false);
   const [quizState, setQuizState] = useState<QuizState>({
     currentQuestionIndex: 0,
     answers: {},
     timePerQuestion: {},
     isComplete: false,
-    startTime: new Date().toISOString(), // Initialize with current time
+    startTime: '',
   });
 
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
@@ -34,6 +35,14 @@ const Quiz: React.FC = () => {
       console.error('Failed to load attempts:', error);
     }
   };
+
+  const handleStartQuiz = useCallback(() => {
+    setIsStarted(true);
+    setQuizState(prev => ({
+      ...prev,
+      startTime: new Date().toISOString()
+    }));
+  }, []);
 
   const handleAnswer = useCallback((answer: string | number) => {
     setQuizState((prev) => ({
@@ -110,9 +119,10 @@ const Quiz: React.FC = () => {
       answers: {},
       timePerQuestion: {},
       isComplete: false,
-      startTime: new Date().toISOString(),
+      startTime: '',
     });
     setSelectedAttempt(null);
+    setIsStarted(false);
   }, []);
 
   const handleViewAttempt = useCallback((attempt: QuizAttempt) => {
@@ -122,15 +132,52 @@ const Quiz: React.FC = () => {
 
   const currentQuestion = quizData[quizState.currentQuestionIndex];
 
+  if (!isStarted) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-6">Welcome to the Quiz!</h1>
+          <div className="bg-base-200 p-8 rounded-lg shadow-lg mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Quiz Instructions</h2>
+            <ul className="text-left space-y-2 mb-6">
+              <li>• You will have {SECONDS_PER_QUESTION} seconds for each question</li>
+              <li>• There are {quizData.length} questions in total</li>
+              <li>• You can't go back to previous questions</li>
+              <li>• Your score and time will be recorded</li>
+              <li>• You can view your attempt history</li>
+            </ul>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleStartQuiz}
+                className="btn btn-primary btn-lg"
+              >
+                Start Quiz
+              </button>
+              <button
+                onClick={() => setShowHistory(true)}
+                className="btn btn-ghost btn-lg"
+              >
+                View History
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (showHistory) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <QuizHistory attempts={attempts} onViewAttempt={handleViewAttempt} />
         <button
-          onClick={() => setShowHistory(false)}
+          onClick={() => {
+            setShowHistory(false);
+            setIsStarted(false);
+          }}
           className="btn btn-primary mt-4"
         >
-          Back to Quiz
+          Back to Start
         </button>
       </div>
     );

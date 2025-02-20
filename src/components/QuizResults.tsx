@@ -66,12 +66,14 @@ const QuizResults: React.FC<QuizResultsProps> = ({ questions, attempt, onRetry }
         })}
       </div>
 
-      <button
-        onClick={onRetry}
-        className="btn btn-primary mt-6"
-      >
-        Try Again
-      </button>
+      <div className="flex justify-center gap-4 mt-6">
+        <button
+          onClick={onRetry}
+          className="btn btn-primary"
+        >
+          Back to Start
+        </button>
+      </div>
     </div>
   );
 };
