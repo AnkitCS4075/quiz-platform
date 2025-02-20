@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Question } from '../types/quiz';
 
 interface QuizQuestionProps {
@@ -18,43 +18,51 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
 }) => {
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [answer, setAnswer] = useState<string | number>(userAnswer || '');
-  const [timerActive, setTimerActive] = useState(true);
+  const timerRef = useRef<NodeJS.Timeout>();
+  const hasTimedUpRef = useRef(false);
 
   useEffect(() => {
     setAnswer(userAnswer || '');
   }, [userAnswer]);
 
   useEffect(() => {
-    if (!timerActive) return;
+    // Reset timer state when question changes
+    setTimeLeft(timeLimit);
+    hasTimedUpRef.current = false;
 
-    const timer = setInterval(() => {
+    // Clear existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    // Start new timer
+    timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setTimerActive(false);
-          onTimeUp();
+        if (prev <= 1 && !hasTimedUpRef.current) {
+          hasTimedUpRef.current = true;
+          clearInterval(timerRef.current);
+          // Schedule onTimeUp to run after render
+          setTimeout(onTimeUp, 0);
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
+    // Cleanup
     return () => {
-      clearInterval(timer);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     };
-  }, [timerActive, onTimeUp]);
-
-  useEffect(() => {
-    setTimeLeft(timeLimit);
-    setTimerActive(true);
-  }, [question.id, timeLimit]);
+  }, [timeLimit, question.id, onTimeUp]);
 
   const handleAnswerChange = (value: string | number) => {
     setAnswer(value);
     onAnswer(value);
   };
 
-  if (!timerActive) {
+  if (!timerRef.current) {
     return (
       <div className="p-6 bg-base-200 rounded-lg shadow-lg animate-pulse">
         <div className="h-6 bg-base-300 rounded w-32 mb-4"></div>

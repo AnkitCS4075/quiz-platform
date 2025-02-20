@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Question, QuizState, QuizAttempt } from '../types/quiz';
 import { quizData } from '../data/quizData';
@@ -35,7 +35,7 @@ const Quiz: React.FC = () => {
     }
   };
 
-  const handleAnswer = (answer: string | number) => {
+  const handleAnswer = useCallback((answer: string | number) => {
     setQuizState((prev) => ({
       ...prev,
       answers: {
@@ -43,9 +43,9 @@ const Quiz: React.FC = () => {
         [quizData[prev.currentQuestionIndex].id]: answer,
       },
     }));
-  };
+  }, []);
 
-  const handleTimeUp = () => {
+  const handleTimeUp = useCallback(() => {
     const currentQuestion = quizData[quizState.currentQuestionIndex];
     setQuizState((prev) => ({
       ...prev,
@@ -55,9 +55,9 @@ const Quiz: React.FC = () => {
       },
     }));
     handleNextQuestion();
-  };
+  }, [quizState.currentQuestionIndex]);
 
-  const handleNextQuestion = async () => {
+  const handleNextQuestion = useCallback(async () => {
     const nextIndex = quizState.currentQuestionIndex + 1;
     
     if (nextIndex >= quizData.length) {
@@ -95,30 +95,30 @@ const Quiz: React.FC = () => {
         },
       }));
     }
-  };
+  }, [quizState.currentQuestionIndex, quizState.answers, quizState.timePerQuestion, quizState.startTime]);
 
-  const calculateScore = () => {
+  const calculateScore = useCallback(() => {
     return Object.entries(quizState.answers).reduce((score, [questionId, answer]) => {
       const question = quizData.find((q) => q.id === parseInt(questionId));
       return question?.correctAnswer === answer ? score + 1 : score;
     }, 0);
-  };
+  }, [quizState.answers]);
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     setQuizState({
       currentQuestionIndex: 0,
       answers: {},
       timePerQuestion: {},
       isComplete: false,
-      startTime: '',
+      startTime: new Date().toISOString(),
     });
     setSelectedAttempt(null);
-  };
+  }, []);
 
-  const handleViewAttempt = (attempt: QuizAttempt) => {
+  const handleViewAttempt = useCallback((attempt: QuizAttempt) => {
     setSelectedAttempt(attempt);
     setShowHistory(false);
-  };
+  }, []);
 
   const currentQuestion = quizData[quizState.currentQuestionIndex];
 
