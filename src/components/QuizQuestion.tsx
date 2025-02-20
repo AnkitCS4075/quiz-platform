@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Question } from '../types/quiz';
 
 interface QuizQuestionProps {
@@ -53,6 +53,20 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     setAnswer(value);
     onAnswer(value);
   };
+
+  if (!timerActive) {
+    return (
+      <div className="p-6 bg-base-200 rounded-lg shadow-lg animate-pulse">
+        <div className="h-6 bg-base-300 rounded w-32 mb-4"></div>
+        <div className="h-4 bg-base-300 rounded w-full mb-6"></div>
+        <div className="space-y-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-12 bg-base-300 rounded"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-base-200 rounded-lg shadow-lg">
