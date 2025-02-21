@@ -6,6 +6,7 @@ import QuizQuestion from './QuizQuestion';
 import QuizResults from './QuizResults';
 import QuizHistory from './QuizHistory';
 import { saveQuizAttempt, getQuizAttempts } from '../services/db';
+import { TrophyIcon, ClockIcon, DocumentTextIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 
 const SECONDS_PER_QUESTION = 30;
 
@@ -148,24 +149,56 @@ const Quiz: React.FC = () => {
   if (!isStarted) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-6">Welcome to the Quiz!</h1>
-          <div className="bg-base-200 p-8 rounded-lg shadow-lg mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Quiz Instructions</h2>
-            <ul className="text-left space-y-2 mb-6">
-              <li>• You will have {SECONDS_PER_QUESTION} seconds for each question</li>
-              <li>• There are {quizData.length} questions in total</li>
-              <li>• You can't go back to previous questions</li>
-              <li>• Your score and time will be recorded</li>
-              <li>• You can view your attempt history after completing a quiz</li>
-            </ul>
-            <div className="flex justify-center">
+        <div className="text-center space-y-8 animate-fade-in">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Welcome to the Quiz!
+          </h1>
+          
+          <div className="bg-base-200 p-8 rounded-xl shadow-xl mb-8 transform hover:scale-102 transition-all duration-300">
+            <h2 className="text-3xl font-semibold mb-6 text-primary">Quiz Instructions</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="p-4 bg-base-100 rounded-lg shadow-md">
+                <ClockIcon className="w-8 h-8 text-primary mb-2" />
+                <h3 className="text-lg font-semibold mb-2">Time Limit</h3>
+                <p>{SECONDS_PER_QUESTION} seconds per question</p>
+              </div>
+              
+              <div className="p-4 bg-base-100 rounded-lg shadow-md">
+                <DocumentTextIcon className="w-8 h-8 text-primary mb-2" />
+                <h3 className="text-lg font-semibold mb-2">Questions</h3>
+                <p>{quizData.length} questions in total</p>
+              </div>
+              
+              <div className="p-4 bg-base-100 rounded-lg shadow-md">
+                <TrophyIcon className="w-8 h-8 text-primary mb-2" />
+                <h3 className="text-lg font-semibold mb-2">Scoring</h3>
+                <p>Instant feedback on answers</p>
+              </div>
+              
+              <div className="p-4 bg-base-100 rounded-lg shadow-md">
+                <ArrowPathIcon className="w-8 h-8 text-primary mb-2" />
+                <h3 className="text-lg font-semibold mb-2">Multiple Attempts</h3>
+                <p>Try again to improve your score</p>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-4">
               <button
                 onClick={handleStartQuiz}
-                className="btn btn-primary btn-lg"
+                className="btn btn-primary btn-lg font-bold text-lg px-8 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 Start Quiz
               </button>
+              
+              {attempts.length > 0 && (
+                <button
+                  onClick={() => setShowHistory(true)}
+                  className="btn btn-ghost btn-lg font-bold text-lg px-8 hover:bg-base-300 transition-colors duration-300"
+                >
+                  View History
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -175,22 +208,22 @@ const Quiz: React.FC = () => {
 
   if (showHistory) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl animate-fade-in">
         <QuizHistory attempts={attempts} onViewAttempt={handleViewAttempt} />
-        <div className="flex justify-center gap-4 mt-4">
+        <div className="flex justify-center gap-4 mt-6">
           <button
             onClick={() => {
               setShowHistory(false);
               setIsStarted(false);
             }}
-            className="btn btn-primary"
+            className="btn btn-primary shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
           >
             Back to Start
           </button>
           {attempts.length > 0 && (
             <button
               onClick={() => setShowHistory(false)}
-              className="btn btn-ghost"
+              className="btn btn-ghost hover:bg-base-300 transition-colors duration-300"
             >
               Take New Quiz
             </button>
@@ -202,7 +235,7 @@ const Quiz: React.FC = () => {
 
   if (selectedAttempt) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl animate-fade-in">
         <QuizResults
           questions={quizData}
           attempt={selectedAttempt}
@@ -213,13 +246,13 @@ const Quiz: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Interactive Quiz</h1>
+    <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-primary">Interactive Quiz</h1>
         {attempts.length > 0 && (
           <button
             onClick={() => setShowHistory(true)}
-            className="btn btn-ghost"
+            className="btn btn-ghost hover:bg-base-300 transition-colors duration-300"
           >
             View History
           </button>
@@ -227,51 +260,47 @@ const Quiz: React.FC = () => {
       </div>
 
       {quizState.isComplete ? (
-        <QuizResults
-          questions={quizData}
-          attempt={{
-            id: uuidv4(),
-            date: quizState.startTime,
-            score: calculateScore(),
-            totalQuestions: quizData.length,
-            answers: quizState.answers,
-            timePerQuestion: quizState.timePerQuestion,
-          }}
-          onRetry={handleRetry}
-        />
+        <div className="animate-fade-in">
+          <QuizResults
+            questions={quizData}
+            attempt={{
+              id: uuidv4(),
+              date: quizState.startTime,
+              score: calculateScore(),
+              totalQuestions: quizData.length,
+              answers: quizState.answers,
+              timePerQuestion: quizState.timePerQuestion,
+            }}
+            onRetry={handleRetry}
+          />
+        </div>
       ) : (
-        <div>
-          <div className="mb-4">
-            <div className="text-sm font-medium text-base-content/70">
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex justify-between items-center">
+            <div className="text-lg font-medium text-base-content/70">
               Question {currentQuestion.id} of {quizData.length}
-            </div>
-            <div className="w-full bg-base-300 rounded-full h-2">
-              <div
-                className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${(quizState.currentQuestionIndex / quizData.length) * 100}%`,
-                }}
-              />
             </div>
           </div>
 
-          <QuizQuestion
-            question={currentQuestion}
-            onAnswer={handleAnswer}
-            timeLimit={SECONDS_PER_QUESTION}
-            onTimeUp={handleTimeUp}
-            userAnswer={quizState.answers[currentQuestion.id]}
-          />
+          <div className="relative pt-8">
+            <QuizQuestion
+              question={currentQuestion}
+              onAnswer={handleAnswer}
+              timeLimit={SECONDS_PER_QUESTION}
+              onTimeUp={handleTimeUp}
+              userAnswer={quizState.answers[currentQuestion.id]}
+            />
 
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={handleNextQuestion}
-              className="btn btn-primary"
-            >
-              {quizState.currentQuestionIndex === quizData.length - 1
-                ? 'Finish Quiz'
-                : 'Next Question'}
-            </button>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={handleNextQuestion}
+                className="btn btn-primary shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              >
+                {quizState.currentQuestionIndex === quizData.length - 1
+                  ? 'Finish Quiz'
+                  : 'Next Question'}
+              </button>
+            </div>
           </div>
         </div>
       )}
