@@ -230,18 +230,37 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
         )}
 
         <div className="mt-8">
-          <div className="w-full bg-base-300 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-base-300 rounded-full h-4 overflow-hidden shadow-inner">
             <div
               className={`h-full rounded-full transition-all duration-1000 ${
                 timeLeft < 10 
-                  ? 'bg-error animate-pulse' 
-                  : 'bg-primary'
+                  ? 'bg-gradient-to-r from-error-600 via-error to-error-400 animate-pulse' 
+                  : timeLeft < 20
+                    ? 'bg-gradient-to-r from-warning-600 via-warning to-warning-400'
+                    : 'bg-gradient-to-r from-primary-600 via-primary to-primary-400'
               }`}
               style={{ 
                 width: `${(timeLeft / timeLimit) * 100}%`,
-                boxShadow: timeLeft < 10 ? '0 0 10px rgba(239, 68, 68, 0.5)' : '0 0 10px rgba(14, 165, 233, 0.5)'
+                boxShadow: timeLeft < 10 
+                  ? '0 0 20px rgba(239, 68, 68, 0.6), 0 0 10px rgba(239, 68, 68, 0.4) inset' 
+                  : timeLeft < 20
+                    ? '0 0 20px rgba(251, 189, 35, 0.6), 0 0 10px rgba(251, 189, 35, 0.4) inset'
+                    : '0 0 20px rgba(14, 165, 233, 0.6), 0 0 10px rgba(14, 165, 233, 0.4) inset',
+                transition: 'all 0.3s ease-in-out'
               }}
             />
+          </div>
+          <div className="flex justify-between mt-2 text-sm text-base-content/60">
+            <span>Time remaining</span>
+            <span className={`font-medium ${
+              timeLeft < 10 
+                ? 'text-error animate-pulse'
+                : timeLeft < 20
+                  ? 'text-warning'
+                  : 'text-primary'
+            }`}>
+              {timeLeft} seconds
+            </span>
           </div>
         </div>
       </div>
