@@ -10,6 +10,7 @@ import { saveQuizAttempt, getQuizAttempts } from '../services/db';
 const SECONDS_PER_QUESTION = 30;
 
 const Quiz: React.FC = () => {
+  const [mounted, setMounted] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [quizState, setQuizState] = useState<QuizState>({
     currentQuestionIndex: 0,
@@ -24,7 +25,10 @@ const Quiz: React.FC = () => {
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
-    loadAttempts();
+    setMounted(true);
+    if (typeof window !== 'undefined') {
+      loadAttempts();
+    }
   }, []);
 
   const loadAttempts = async () => {
@@ -131,6 +135,17 @@ const Quiz: React.FC = () => {
   }, []);
 
   const currentQuestion = quizData[quizState.currentQuestionIndex];
+
+  if (!mounted) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="animate-pulse">
+          <div className="h-8 bg-base-300 rounded w-48 mb-6"></div>
+          <div className="h-64 bg-base-200 rounded-lg"></div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isStarted) {
     return (
