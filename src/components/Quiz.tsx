@@ -159,20 +159,14 @@ const Quiz: React.FC = () => {
               <li>• There are {quizData.length} questions in total</li>
               <li>• You can't go back to previous questions</li>
               <li>• Your score and time will be recorded</li>
-              <li>• You can view your attempt history</li>
+              <li>• You can view your attempt history after completing a quiz</li>
             </ul>
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center">
               <button
                 onClick={handleStartQuiz}
                 className="btn btn-primary btn-lg"
               >
                 Start Quiz
-              </button>
-              <button
-                onClick={() => setShowHistory(true)}
-                className="btn btn-ghost btn-lg"
-              >
-                View History
               </button>
             </div>
           </div>
@@ -185,15 +179,25 @@ const Quiz: React.FC = () => {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <QuizHistory attempts={attempts} onViewAttempt={handleViewAttempt} />
-        <button
-          onClick={() => {
-            setShowHistory(false);
-            setIsStarted(false);
-          }}
-          className="btn btn-primary mt-4"
-        >
-          Back to Start
-        </button>
+        <div className="flex justify-center gap-4 mt-4">
+          <button
+            onClick={() => {
+              setShowHistory(false);
+              setIsStarted(false);
+            }}
+            className="btn btn-primary"
+          >
+            Back to Start
+          </button>
+          {attempts.length > 0 && (
+            <button
+              onClick={() => setShowHistory(false)}
+              className="btn btn-ghost"
+            >
+              Take New Quiz
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -214,12 +218,14 @@ const Quiz: React.FC = () => {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Interactive Quiz</h1>
-        <button
-          onClick={() => setShowHistory(true)}
-          className="btn btn-ghost"
-        >
-          View History
-        </button>
+        {attempts.length > 0 && (
+          <button
+            onClick={() => setShowHistory(true)}
+            className="btn btn-ghost"
+          >
+            View History
+          </button>
+        )}
       </div>
 
       {quizState.isComplete ? (
