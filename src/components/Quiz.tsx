@@ -183,22 +183,13 @@ const Quiz: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center">
               <button
                 onClick={handleStartQuiz}
-                className="btn btn-primary btn-lg font-bold text-lg px-8 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                className="btn btn-primary btn-lg font-bold text-lg px-12 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 Start Quiz
               </button>
-              
-              {attempts.length > 0 && (
-                <button
-                  onClick={() => setShowHistory(true)}
-                  className="btn btn-ghost btn-lg font-bold text-lg px-8 hover:bg-base-300 transition-colors duration-300"
-                >
-                  View History
-                </button>
-              )}
             </div>
           </div>
         </div>

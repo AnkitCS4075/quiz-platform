@@ -23,6 +23,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   const [isAnswerLocked, setIsAnswerLocked] = useState(false);
   const timerRef = useRef<NodeJS.Timeout>();
   const hasTimedUpRef = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setAnswer(userAnswer || '');
@@ -58,16 +59,26 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   }, [timeLimit, question.id, onTimeUp]);
 
   const handleAnswerChange = (value: string | number) => {
-    if (isAnswerLocked) return;
-    
     setAnswer(value);
     setShowFeedback(true);
-    setIsAnswerLocked(true);
     const timeTaken = timeLimit - timeLeft;
     onAnswer(value, timeTaken);
-    
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
+  };
+
+  const handleIntegerSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (answer !== '') {
+      handleAnswerChange(Number(answer));
+      if (inputRef.current) {
+        inputRef.current.blur();
+      }
+    }
+  };
+
+  const handleIntegerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '' || /^-?\d+$/.test(value)) {
+      setAnswer(value);
     }
   };
 
@@ -118,7 +129,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
                 className={`flex items-center p-4 border-2 rounded-lg transition-all duration-300 ${
                   !isAnswerLocked 
                     ? 'hover:bg-primary/10 hover:border-primary cursor-pointer transform hover:scale-102 hover:shadow-glow' 
-                    : 'cursor-not-allowed'
+                    : ''
                 } ${
                   showFeedback && answer === option
                     ? isCorrect
@@ -135,7 +146,6 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
                   value={option}
                   checked={answer === option}
                   onChange={(e) => handleAnswerChange(e.target.value)}
-                  disabled={isAnswerLocked}
                   className={`radio mr-4 ${
                     showFeedback && answer === option
                       ? isCorrect
@@ -168,22 +178,37 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
 
         {question.type === 'integer' && (
           <div className="space-y-4 mt-8">
-            <div className="flex justify-center">
-              <input
-                type="number"
-                value={answer}
-                onChange={(e) => handleAnswerChange(parseInt(e.target.value) || '')}
-                disabled={isAnswerLocked}
-                className={`input input-bordered w-full max-w-xs text-center text-xl ${
-                  showFeedback
-                    ? isCorrect
-                      ? 'input-success shadow-glow-success'
-                      : 'input-error shadow-glow-error'
-                    : 'focus:shadow-glow'
-                } ${isAnswerLocked ? 'cursor-not-allowed' : ''}`}
-                placeholder="Enter your answer"
-              />
-            </div>
+            <form onSubmit={handleIntegerSubmit} className="flex justify-center">
+              <div className="w-full max-w-xs">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  pattern="-?[0-9]*"
+                  value={answer}
+                  onChange={handleIntegerChange}
+                  onBlur={() => {
+                    if (answer !== '') {
+                      handleAnswerChange(Number(answer));
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && answer !== '') {
+                      e.preventDefault();
+                      handleAnswerChange(Number(answer));
+                      inputRef.current?.blur();
+                    }
+                  }}
+                  className={`input input-bordered w-full text-center text-xl ${
+                    showFeedback
+                      ? isCorrect
+                        ? 'input-success shadow-glow-success'
+                        : 'input-error shadow-glow-error'
+                      : 'focus:shadow-glow'
+                  }`}
+                  placeholder="Enter your answer"
+                />
+              </div>
+            </form>
             {showFeedback && (
               <div className={`flex justify-center items-center gap-2 text-lg font-medium animate-slide-in ${
                 isCorrect ? 'text-success' : 'text-error'
