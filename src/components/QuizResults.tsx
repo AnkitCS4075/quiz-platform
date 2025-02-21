@@ -10,6 +10,17 @@ interface QuizResultsProps {
 
 const QuizResults: React.FC<QuizResultsProps> = ({ questions, attempt, onRetry }) => {
   const percentage = Math.round((attempt.score / questions.length) * 100);
+  const totalTime = Object.values(attempt.timePerQuestion).reduce((a, b) => a + b, 0);
+  const averageTime = Math.round(totalTime / questions.length);
+
+  const formatTime = (seconds: number) => {
+    if (seconds < 60) {
+      return `${seconds} seconds`;
+    }
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
+  };
 
   return (
     <div className="p-6 bg-base-200 rounded-lg shadow-lg">
@@ -25,9 +36,9 @@ const QuizResults: React.FC<QuizResultsProps> = ({ questions, attempt, onRetry }
         <div className="stat">
           <div className="stat-title">Time Taken</div>
           <div className="stat-value">
-            {Object.values(attempt.timePerQuestion).reduce((a, b) => a + b, 0)}s
+            {formatTime(totalTime)}
           </div>
-          <div className="stat-desc">Average: {Math.round(Object.values(attempt.timePerQuestion).reduce((a, b) => a + b, 0) / questions.length)}s per question</div>
+          <div className="stat-desc">Average: {formatTime(averageTime)} per question</div>
         </div>
       </div>
 
@@ -35,6 +46,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ questions, attempt, onRetry }
         {questions.map((question) => {
           const userAnswer = attempt.answers[question.id];
           const isCorrect = userAnswer === question.correctAnswer;
+          const questionTime = attempt.timePerQuestion[question.id] || 0;
           
           return (
             <div key={question.id} className="p-4 bg-base-100 rounded-lg">
@@ -57,7 +69,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ questions, attempt, onRetry }
                     </p>
                   )}
                   <p className="text-sm text-base-content/70 mt-1">
-                    Time taken: {attempt.timePerQuestion[question.id]}s
+                    Time taken: {formatTime(questionTime)}
                   </p>
                 </div>
               </div>

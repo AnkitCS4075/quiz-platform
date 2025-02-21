@@ -3,7 +3,7 @@ import { Question } from '../types/quiz';
 
 interface QuizQuestionProps {
   question: Question;
-  onAnswer: (answer: string | number) => void;
+  onAnswer: (answer: string | number, timeTaken: number) => void;
   timeLimit: number;
   onTimeUp: () => void;
   userAnswer?: string | number;
@@ -59,7 +59,8 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
 
   const handleAnswerChange = (value: string | number) => {
     setAnswer(value);
-    onAnswer(value);
+    const timeTaken = timeLimit - timeLeft;
+    onAnswer(value, timeTaken);
   };
 
   if (!timerRef.current) {

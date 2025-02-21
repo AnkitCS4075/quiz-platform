@@ -48,15 +48,20 @@ const Quiz: React.FC = () => {
     }));
   }, []);
 
-  const handleAnswer = useCallback((answer: string | number) => {
+  const handleAnswer = useCallback((answer: string | number, timeTaken: number) => {
+    const currentQuestion = quizData[quizState.currentQuestionIndex];
     setQuizState((prev) => ({
       ...prev,
       answers: {
         ...prev.answers,
-        [quizData[prev.currentQuestionIndex].id]: answer,
+        [currentQuestion.id]: answer,
+      },
+      timePerQuestion: {
+        ...prev.timePerQuestion,
+        [currentQuestion.id]: timeTaken,
       },
     }));
-  }, []);
+  }, [quizState.currentQuestionIndex]);
 
   const handleTimeUp = useCallback(() => {
     const currentQuestion = quizData[quizState.currentQuestionIndex];
@@ -96,16 +101,9 @@ const Quiz: React.FC = () => {
         isComplete: true,
       }));
     } else {
-      const currentQuestion = quizData[quizState.currentQuestionIndex];
-      const timeSpent = SECONDS_PER_QUESTION - (quizState.timePerQuestion[currentQuestion.id] || 0);
-      
       setQuizState((prev) => ({
         ...prev,
         currentQuestionIndex: nextIndex,
-        timePerQuestion: {
-          ...prev.timePerQuestion,
-          [currentQuestion.id]: timeSpent,
-        },
       }));
     }
   }, [quizState.currentQuestionIndex, quizState.answers, quizState.timePerQuestion, quizState.startTime]);
